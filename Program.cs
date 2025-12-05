@@ -1,40 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace Banco
+namespace MaquinaCafeAvaliacao
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            Conta conta1 = new ContaPrazo("Leandro", 123, 4565.43, 0.2, new DateTime(2026, 1, 1));
-            Conta conta2 = new ContaPrazo("David", 345, 4567.4, 0.1, new DateTime(2025,1,1));
-            Conta conta3 = new ContaOrdem("Carlos", 963, 100, 150);
+            Console.OutputEncoding = Encoding.UTF8;
+            Random rnd = new Random();
+            MaquinaCafe maquinaCafe = new MaquinaCafe(rnd.Next(1, 5), rnd.Next(10, 100), rnd.Next(20, 150), rnd.Next(20, 150), rnd.Next(5, 50));
 
-            //conta1.imprimirDados();
-            //Console.WriteLine();
-            //conta1.depositar(123.312, 12);
-            //Console.WriteLine();
-            //conta1.imprimirDados();
-            //Console.WriteLine();
-            //conta1.levantar(1000);
-            //conta1.imprimirDados();
-            //Console.WriteLine();
-            //conta1.transferir(conta1, conta2, 350);
+            string op;
+            
+            while(true) {
+                op = maquinaCafe.menuOpcoes();
 
-            conta1.imprimirDados();
-            conta2.imprimirDados();
-            conta3.imprimirDados();
-            Console.WriteLine();
-            conta3.levantar(1000);
-            conta3.levantar(200);
-            conta3.imprimirDados();
+                if (op.ToLower() == "off")
+                    break;
 
-            Console.ReadLine();
+                if(op == "4" || op.ToLower() == "estado")
+                {
+                    Console.Clear();
+                    maquinaCafe.mostrarEstado();
+                    Console.WriteLine();
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write("Clique em uma tecla para avançar ");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.ReadKey();
+                }
+                else
+                {
+                    maquinaCafe.escolherBebida(op);
+                    maquinaCafe.mostrarEstado();
+                    Console.WriteLine();
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("Aguarde 10 segundos para efetuar novo pedido");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Thread.Sleep(10000);
+                }
+            };
+
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Máquina desligada");
+            Console.ForegroundColor = ConsoleColor.White;
         }
     }
 }
