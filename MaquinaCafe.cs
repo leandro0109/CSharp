@@ -1,137 +1,85 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace MaquinaCafeAvaliacao
+namespace MaquinaCafe
 {
     internal class MaquinaCafe
     {
-        private double dinheiro;
-        private double cafe;
         private double agua;
+        private double cafe;
         private double leite;
         private double acucar;
+        private double dinheiro;
+        private const double precoExpresso = 0.80;
+        private const double precoLeite = 1.20;
+        private const double precoCappuccino = 1.50;
 
-        public MaquinaCafe(double dinheiro, double cafe, double agua, double leite, double acucar)
-        {
-            this.dinheiro = dinheiro;
-            this.cafe = cafe;
+        public MaquinaCafe(double agua, double cafe, double leite, double acucar, double dinheiro) {
             this.agua = agua;
+            this.cafe = cafe;
             this.leite = leite;
             this.acucar = acucar;
+            this.dinheiro = dinheiro;
         }
 
-        public string menuOpcoes ()
+        public string menuOpcoes()
         {
-            Expresso expresso = new Expresso();
-            Leite leite = new Leite();
-            Cappuccino cappuccino = new Cappuccino();
-
-            Console.Clear();
-            Console.WriteLine("☕==============================☕");
-            Console.WriteLine("       MÁQUINA DE BEBIDAS");
-            Console.WriteLine("☕==============================☕\n");
-
-            Console.WriteLine($"1 - ☕ {expresso.Nome} — {expresso.Preco:F2}€");
-            Console.WriteLine($"2 - ☕ {leite.Nome} — {leite.Preco:F2}€");
-            Console.WriteLine($"3 - ☕ {cappuccino.Nome} — {cappuccino.Preco:F2}€");
-            Console.WriteLine("4 - 📊 Estado Máquina");
-            Console.Write("Insira nº ou nome da opção desejada: ");
-            return Console.ReadLine();
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("Bem vindo à máquina de café da esquina");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("1 - Expresso " + precoExpresso.ToString("F2") + "€");
+            Console.WriteLine("2 - Leite " + precoLeite.ToString("F2") + "€");
+            Console.WriteLine("3 - Cappuccino " + precoCappuccino.ToString("F2") + "€");
+            Console.Write("Insira o nº ou nome da opção desejada: ");
+            string op = Console.ReadLine();
+            Console.WriteLine();
+            return op;
         }
 
-        public void escolherBebida(string op)
+        public bool verificarIngredientes(double quantAgua, double quantCafe, double quantLeite, double quantAcucar)
         {
-            Bebida bebida = null;
+            bool possuiIngredientes = true;
 
-            switch (op.ToLower())
+            Console.ForegroundColor= ConsoleColor.DarkRed;
+            if (agua < quantAgua)
             {
-                case "1":
-                case "expresso":
-                    bebida = new Expresso();
-                    if(verificarRecursos(bebida.Cafe, bebida.Agua, bebida.Leite, bebida.Acucar) == true)
-                    {
-                        Console.Clear();
-                        if(processarPagamento(bebida.Preco) == true)
-                        {
-                            Console.Clear();
-                            bebida.prepararBebida();
-                            atualizarEstado(bebida.Cafe, bebida.Agua, bebida.Leite, bebida.Acucar);
-                        }       
-                    }   
-                    break;
-                case "2":
-                case "leite":
-                    bebida = new Leite();
-                    if (verificarRecursos(bebida.Cafe, bebida.Agua, bebida.Leite, bebida.Acucar) == true)
-                    {
-                        Console.Clear();
-                        if (processarPagamento(bebida.Preco) == true)
-                        {
-                            Console.Clear();
-                            bebida.prepararBebida();
-                            atualizarEstado(bebida.Cafe, bebida.Agua, bebida.Leite, bebida.Acucar);
-                        }        
-                    }
-                    break;
-                case "3":
-                case "cappuccino":
-                    bebida = new Cappuccino();
-                    if (verificarRecursos(bebida.Cafe, bebida.Agua, bebida.Leite, bebida.Acucar) == true)
-                    {
-                        Console.Clear();
-                        if (processarPagamento(bebida.Preco) == true)
-                        {
-                            Console.Clear();
-                            bebida.prepararBebida();
-                            atualizarEstado(bebida.Cafe, bebida.Agua, bebida.Leite, bebida.Acucar);
-                        }    
-                    }
-                    break;
-                default:
-                    Console.WriteLine("\n⚠️ Opção inválida. Tente novamente.");
-                    break;
+                Console.WriteLine("Água insuficiente");
+                Console.WriteLine(agua + "ml diponivel necessita de mais " + (quantAgua - agua) + "ml");
+                possuiIngredientes = false;
             }
-        }
-        
-        public bool verificarRecursos(double quantCafe, double quantAgua, double quantLeite, double quantAcucar)
-        {
-            bool temIngredientes = true;
 
             if (cafe < quantCafe)
             {
-                Console.WriteLine("\n⚠️  Quantidade de café insuficiente para satisfazer o pedido.");
-                Console.WriteLine($"☕ Café disponível: {cafe}g | Necessário: {quantCafe}g | Falta: {quantCafe - cafe}g");
-                temIngredientes = false;
-            }
-
-            if (agua < quantAgua)
-            {
-                Console.WriteLine("\n⚠️  Quantidade de água insuficiente para satisfazer o pedido.");
-                Console.WriteLine($"💧 Água disponível: {agua}ml | Necessário: {quantAgua}ml | Falta: {quantAgua - agua}ml");
-                temIngredientes = false;
-            }
-
-            if (leite < quantLeite)
-            {
-                Console.WriteLine("\n⚠️  Quantidade de leite insuficiente para satisfazer o pedido.");
-                Console.WriteLine($"🥛 Leite disponível: {leite}ml | Necessário: {quantLeite}ml | Falta: {quantLeite - leite}ml");
-                temIngredientes = false;
+                Console.WriteLine("Café insuficiente");
+                Console.WriteLine(cafe + "g diponivel necessita de mais " + (quantCafe - cafe) + "g");
+                possuiIngredientes = false;
             }
 
             if (acucar < quantAcucar)
             {
-                Console.WriteLine("\n⚠️  Quantidade de açúcar insuficiente para satisfazer o pedido.");
-                Console.WriteLine($"🍬 Açúcar disponível: {acucar}g | Necessário: {quantAcucar}g | Falta: {quantAcucar - acucar}g");
-                temIngredientes = false;
+                Console.WriteLine("Açúcar insuficiente");
+                Console.WriteLine(acucar + "g diponivel necessita de mais " + (quantAcucar - acucar) + "g");
+                possuiIngredientes = false;
             }
 
-            return temIngredientes;
+            if (leite < quantLeite)
+            {
+                Console.WriteLine("Leite insuficiente");
+                Console.WriteLine(leite + "ml diponivel necessita de mais " + (quantLeite - leite) + "ml");
+                possuiIngredientes = false;
+            }
+            Console.ForegroundColor = ConsoleColor.White;
+
+            return possuiIngredientes;
         }
 
-        public bool processarPagamento(double precoBebida)
+        public double inserirDinheiro()
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Menu Pagamento");
@@ -187,44 +135,111 @@ namespace MaquinaCafeAvaliacao
             } while (op != '0');
 
             Console.WriteLine();
+            return totalInserido;
+        }
 
-            if (totalInserido < precoBebida)
+        public bool fazerExpresso()
+        {
+            double montanteInserido = inserirDinheiro();
+            if (verificarIngredientes(30, 10, 0, 10) == true && montanteInserido >= precoExpresso)
             {
-                Console.WriteLine("\n⚠️  Montante inserido insuficiente para efetuar a compra.");
-                Console.WriteLine($"💶 Valor inserido: {totalInserido:F2} € | Preço da bebida: {precoBebida:F2} €");
-                Console.WriteLine("Transação cancelada.");
+                agua -= 30;
+                cafe -= 10;
+                acucar -= 10;
+                dinheiro += montanteInserido;
+                if (montanteInserido - precoExpresso > 0)
+                {
+                    double troco = montanteInserido - precoExpresso;
+                    dinheiro -= troco;
+                    Console.WriteLine();
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.WriteLine("Aqui tem o seu troco: " + troco.ToString("F2") + "€");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+                return true;
+            }
+            else if (montanteInserido < precoExpresso)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Montante inserido insuficiente! Transação cancelada.");
+                Console.ForegroundColor = ConsoleColor.White;
                 return false;
             }
 
-            if (totalInserido > precoBebida) {
-                Console.WriteLine($"Aqui está o seu troco: {totalInserido - precoBebida:F2}€");
+            return false;
+        }
+
+        public bool fazerLeite()
+        {
+            double montanteInserido = inserirDinheiro();
+            if (verificarIngredientes(30, 10, 150, 10) == true && montanteInserido >= precoLeite)
+            {
+                agua -= 30;
+                cafe -= 10;
+                acucar -= 10;
+                leite -= 150;
+                dinheiro += montanteInserido;
+                if (montanteInserido - precoLeite > 0)
+                {
+                    double troco = montanteInserido - precoLeite;
+                    dinheiro -= troco;
+                    Console.WriteLine();
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.WriteLine("Aqui tem o seu troco: " + troco.ToString("F2") + "€");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+                return true;
+            }
+            else if (montanteInserido < precoLeite)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Montante inserido insuficiente! Transação cancelada.");
+                Console.ForegroundColor = ConsoleColor.White;
+                return false;
             }
 
-            dinheiro += precoBebida;
-            return true;
+            return false;
         }
 
-        public void atualizarEstado(double quantCafe, double quantAgua, double quantLeite, double quantAcucar)
+        public bool fazerCappuccino()
         {
-            cafe -= quantCafe;
-            agua -= quantAgua;
-            leite -= quantLeite;
-            acucar -= quantAcucar;
+            double montanteInserido = inserirDinheiro();
+            if (verificarIngredientes(30, 15, 80, 10) == true && montanteInserido >= precoCappuccino)
+            {
+                agua -= 30;
+                cafe -= 15;
+                acucar -= 10;
+                leite -= 80;
+                dinheiro += montanteInserido;
+                if (montanteInserido - precoCappuccino > 0)
+                {
+                    Console.WriteLine();
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    double troco = montanteInserido - precoCappuccino;
+                    dinheiro -= troco;
+                    Console.WriteLine("Aqui tem o seu troco: " + troco.ToString("F2") + "€");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+                return true;
+            }
+            else if (montanteInserido < precoCappuccino)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Montante inserido insuficiente! Transação cancelada.");
+                Console.ForegroundColor = ConsoleColor.White;
+                return false;
+            }
+
+            return false;
         }
 
-        public void mostrarEstado()
+        public void estadoMaquina()
         {
-            Console.WriteLine("\n===============================");
-            Console.WriteLine("📊 ESTADO ATUAL DA MÁQUINA");
-            Console.WriteLine("===============================\n");
-
-            Console.WriteLine($"☕ Café:   {cafe} g");
-            Console.WriteLine($"💧 Água:   {agua} ml");
-            Console.WriteLine($"🥛 Leite:  {leite} ml");
-            Console.WriteLine($"🍬 Açúcar: {acucar} g");
-            Console.WriteLine($"💰 Dinheiro: {dinheiro:F2} €");
-
-            Console.WriteLine("\n===============================");
+            Console.WriteLine();
+            Console.ForegroundColor =  ConsoleColor.DarkYellow;
+            Console.WriteLine("Estado da máquina");
+            Console.WriteLine("Água: " + agua + " ml" + "\nCafé: " + cafe + " g" + "\nLeite: " + leite + " ml" + "\nAçúcar: " + acucar + " g" + "\nDinheiro: " + dinheiro.ToString("F2") + "€");
+            Console.ForegroundColor = ConsoleColor.White;
         }
     }
 }
